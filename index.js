@@ -28,6 +28,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/views/index.html"));
 });
 
+app.get("/fetch-random", (req, res) => {
+  res.sendFile(path.join(__dirname, "/views/fetch-random.html"));
+  });
+  
+  app.get("/fetch-multiple-random", (req, res) => {
+  res.sendFile(path.join(__dirname, "/views/fetch-multiple-random.html"));
+  });
+
 app.get("/gallery", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "gallery.html"));
 });
