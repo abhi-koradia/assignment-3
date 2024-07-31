@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery Pagination</title>
     <style>
         img {
-            width: 200px; /* Adjust size as needed */
+            width: 200px; 
             margin: 10px;
         }
         .pagination {
@@ -22,7 +24,6 @@
     <div class="pagination" id="pagination"></div>
     <script>
         let currentPage = 1;
-        const itemsPerPage = 10;
 
         function loadPage(page) {
             fetch(`/fetch/all/pages/${page}`)
@@ -34,12 +35,12 @@
                     const paginationDiv = document.getElementById('pagination');
                     paginationDiv.innerHTML = ''; // Clear previous pagination
 
-                    for (const [fileName, fileContent] of Object.entries(data.files)) {
+                    data.files.forEach(file => {
                         const img = document.createElement('img');
-                        img.src = `data:image/jpeg;base64,${fileContent}`; // Change MIME type if necessary
-                        img.alt = fileName;
+                        img.src = `data:${file.contentType};base64,${file.imageBuffer}`; 
+                        img.alt = file.filename;
                         galleryDiv.appendChild(img);
-                    }
+                    });
 
                     // Create pagination controls
                     if (data.page > 1) {

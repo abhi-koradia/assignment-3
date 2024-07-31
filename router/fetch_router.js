@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const File = require("../models/file");
+const ITEMS_PER_PAGE = 2; 
 
 // Fetch single random file
 router.get("/", async (req, res) => {
@@ -38,6 +39,67 @@ router.get("/multiple", async (req, res) => {
     res.json(formattedFiles);
   } catch (error) {
     console.error("Error finding documents:", error);
+    res.status(500).send("Error fetching files.");
+  }
+});
+
+// Fetch all files as base64
+router.get("/all", async (req, res) => {
+  try {
+    const files = await File.find();
+    if (!files.length) {
+      return res.status(404).send("No files found.");
+    }
+    const formattedFiles = files.map((file) => ({
+      filename: file.filename,
+      contentType: file.contentType,
+      imageBuffer: file.imageBufferThumbnail
+        ? file.imageBufferThumbnail.toString("base64")
+        : file.imageBuffer.toString("base64"),
+    }));
+    res.json(formattedFiles);
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    res.status(500).send("Error fetching files.");
+  }
+});
+
+// Fetch paginated files
+router.get("/all/pages/:index", async (req, res) => {
+  const pageIndex = parseInt(req.params.index, 10);
+  if (isNaN(pageIndex) || pageIndex < 1) {
+    return res.status(400).send("Invalid page index.");
+  }
+
+  try {
+    const totalItems = await File.countDocuments();
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    if (pageIndex > totalPages) {
+      return res.status(404).send("Page not found.");
+    }
+
+    const files = await File.find()
+      .skip((pageIndex - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
+
+    const formattedFiles = files.map((file) => ({
+      filename: file.filename,
+      contentType: file.contentType,
+      imageBuffer: file.imageBufferThumbnail
+        ? file.imageBufferThumbnail.toString("base64")
+        : file.imageBuffer.toString("base64"),
+    }));
+
+    const response = {
+      page: pageIndex,
+      totalPages: totalPages,
+      files: formattedFiles,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching paginated files:", error);
     res.status(500).send("Error fetching files.");
   }
 });

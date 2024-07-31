@@ -11,11 +11,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/upload", uploadRouter);
-app.use("/fetch", fetchRouter);
+app.use("/fetch", fetchRouter); // Ensure this line is present
 
-// MongoDB Connection
 const mongoose = require("mongoose");
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI);
 let db = mongoose.connection;
 db.once("open", () => {
   console.log("Connected to MongoDB");
